@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+
+<html>
+
+    <head>
+        <title>Graphics coursework</title>
+        <link rel="shortcut icon" href="../favicon.ico">
+        <script type="text/javascript" src="../libs/three.js"></script>
+        <script type="text/javascript" src="../libs/jquery.js"></script>
+        <script type="text/javascript" src="../libs/stats.js"></script>
+        <script type="text/javascript" src="../libs/dat.gui.js"></script>
+        <script type="text/javascript" src="../libs/FirstPersonControls.js"></script>
+        <script type="text/javascript" src="../libs/keypress.js"></script>
+        <script type="text/javascript" src="../libs/chroma.js"></script>
+        
+        <style>
+            body{
+                /* set margin to 0 and overflow to hidden, to go fullscreen */
+                margin: 0;
+                overflow: hidden;
+            }
+        </style>
+    </head>
+    <body>
+
+        <div id="Stats-output">
+        </div>
+        <!-- Div which will hold the Output -->
+        <div id="WebGL-output">
+        </div>
+
+        <!-- Javascript code that runs our Three.js examples -->
+        <script type="text/javascript">
+
+            // once everything is loaded, we run our Three.js stuff.
+            $(function() {
+
+                var stats = initStats();
+
+                // create a scene, that will hold all our elements such as objects, cameras and lights.
+                var scene = new THREE.Scene();
+//                scene.fog = new THREE.Fog(0xE09090, 20, 80);
+                
+                // create a camera, which defines where we're looking at.
+                var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+                // create a render and set the size
+                var renderer = new THREE.WebGLRenderer();
+
+                renderer.setClearColor(0x191970, 1.0);
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.shadowMap.enabled = true;
+                
+                var controls = new THREE.FirstPersonControls(camera);
+                controls.lookSpeed = 0.0;
+                controls.movementSpeed = 20;
+                controls.noFly = true;
+                controls.lookVertical = true;
+                controls.constrainVertical = true;
+                controls.verticalMin = 1.0;
+                controls.verticalMax = 2.0;
+//                controls.lon = -150;
+//                controls.lat = 120;
+                            
+                // create the ground 
+                var groundGeometry = new THREE.CircleGeometry(100, 40);
+                var groundMaterial = new THREE.MeshLambertMaterial({color: 0x00ffff});
+                var ground = new THREE.Mesh(groundGeometry, groundMaterial);
+                ground.receiveShadow = true;
+
+                // rotate and position the plane
+                ground.rotation.x = -0.5 * Math.PI;
+
+                // add the plane to the scene
+                scene.add(ground);
+
+                //This code creates the material for the Shard
+                var material = new THREE.MeshLambertMaterial({color: 0x806060});
+                
+                for (var i = 0; i < 25; ++i) {
+                    var size = 1 * (25 - i);
+                    var geometry = new THREE.CubeGeometry(size, 2, size);
+                    var layer = new THREE.Mesh(geometry, material);
+                    layer.castShadow = true;
+                    layer.position.y = 2 * i + 1;
+                    
+                    //This code adds the Shard to the scene
+                    scene.add(layer);
+                }
+
+
+                //This code creates the first building
+                var building = createMesh (new THREE.CubeGeometry(10, 40, 10), "Building_texture1.jpg");
+                building.castShadow = true;
+                
+                //This code positions the first building
+                building.position.x = 20;
+                building.position.y = 20;
+                
+                //This code add the first building
+                scene.add(building);
+                
+                //This code creates the second building
+                var building2 = createMesh (new THREE.CubeGeometry(10, 40, 10), "Building_texture2.jpg");
+                building2.castShadow = true;
+
+                //This code positions the second building
+                building2.position.x = 37;
+                building2.position.y = 20;
+
+                //This code adds the second building
+                scene.add(building2);
+                
+                //This code creates the third building
+                var cubeGeometry = new THREE.CubeGeometry(10, 40, 10);
+                var cubeMaterial = new THREE.MeshLambertMaterial({color: 0x008000});
+                var building3 = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                building3.castShadow = true;
+
+                //This code positions the third building
+                building3.position.x = 56;
+                building3.position.y = 20;
+
+                //This code adds the third building
+                scene.add(building3);
+                
+                //This code creates the fourth building
+                var building4 = createMesh (new THREE.CubeGeometry(25, 25, 10), "Building_texture3.jpg");
+                building4.castShadow = true;
+                
+                //This code positions the fourth building
+                building4.position.x = -35;
+                building4.position.y = 10;
+                
+                //this code adds the fourth building
+                scene.add(building4);
+                
+                
+                //this code is used to load up the building texture 
+                var cube = createMesh(new THREE.CubeGeometry(10, 40, 10),
+                "Building_texture1.jpg");
+                
+                function createMesh(geom, imageFile) {
+                var material = new THREE.MeshPhongMaterial();
+                var texture = new THREE.TextureLoader().load("../Assets/Textures/" + imageFile);
+                material.map = texture;
+                var mesh = new THREE.Mesh(geom, material);
+                return mesh;
+                }
+
+                
+                //this code is used to create the sphere
+                var sphereGeometry = new THREE.SphereGeometry(4, 20, 20);
+                var sphereMaterial = new THREE.MeshLambertMaterial({color: 0xFFFF00});
+                var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+                sphere.castShadow = true;
+                
+                //this line of code is used to position the sphere
+                sphere.position.x = 60;
+                sphere.position.y = 60;
+                
+                //this line of code is used to add the sphere
+                scene.add(sphere);
+
+                var tableMaterial = new THREE.MeshLambertMaterial({color: 0x806060});
+
+                // This code creates the train tracks
+                var tableTopGeometry = new THREE.CubeGeometry(160, 0.5, 15);
+                var tableTop = new THREE.Mesh(tableTopGeometry, tableMaterial);
+                tableTop.castShadow = true;
+                
+                //This code positions and adds the train tracks
+                tableTop.position.y = 0;
+                tableTop.position.x = 15;
+                tableTop.position.z = 27;
+                scene.add(tableTop);
+
+                //This code creates the train carriage
+                var cubeGeometry = new THREE.CubeGeometry(15, 5, 5);
+                var cubeMaterial = new THREE.MeshLambertMaterial({color: 0x008000});
+                var cube5 = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                cube5.castShadow = true;
+
+                //This code positions the train carriage
+                cube5.position.y = 3;
+                cube5.position.x = 10;
+                cube5.position.z = 27;
+                
+                //This code adds the train carriage
+                scene.add(cube5);
+
+                //This code creates the train hood 
+                var cubeGeometry = new THREE.CubeGeometry(3, 3, 3);
+                var cubeMaterial = new THREE.MeshLambertMaterial({color: 0x008000});
+                var cube6 = new THREE.Mesh(cubeGeometry, cubeMaterial);
+                cube6.castShadow = true;
+
+                //This code positions the train hood
+                cube6.position.y = 2;
+                cube6.position.x = 1;
+                cube6.position.z = 27;
+                
+                //This code add the train hood
+                scene.add(cube6);
+
+                
+                // position and point the camera to the center of the scene 
+                camera.position.x = -40;
+                camera.position.y = 20;
+                camera.position.z = 30;
+                camera.lookAt(scene.position);
+
+                var orbitGroup = new THREE.Object3D();
+                scene.add(orbitGroup);
+                orbitGroup.add(camera);
+
+                // add subtle ambient lighting
+                var ambientColor = "#202020";
+                var ambientLight = new THREE.AmbientLight(ambientColor);
+                scene.add(ambientLight);
+                
+               
+
+                // add spotlight for the shadows
+                var spotLight = new THREE.SpotLight(0xffffff);
+                spotLight.position.set(-40, 60, -10);
+                spotLight.castShadow = true;
+                scene.add(spotLight);
+                
+                
+                var lightColor = "#ccffcc";
+                var light = new THREE.PointLight(lightColor);
+                light.position.set(10, 20, 0);
+                light.distance = 100;
+                light.intensity = 0.5;
+                scene.add(light);
+
+
+                    
+                // add the output of the renderer to the html element
+                $("#WebGL-output").append(renderer.domElement);
+
+                // call the render function
+                
+                var clock = new THREE.Clock();
+                render();
+                
+                var angle = 0;
+                render();
+        
+
+                function render() {            
+
+        
+                stats.update();
+
+                var delta = clock.getDelta();
+                controls.update(delta);
+                
+                
+                angle += 0.002;
+                sphere.rotation.y = angle;
+                
+                requestAnimationFrame(render);
+                renderer.render(scene, camera);
+                
+    }
+
+                
+        
+                var keypress = new window.keypress.Listener();
+
+                keypress.simple_combo("left", function() {
+                    orbitGroup.rotation.y -= 0.02;
+                    updateGUI();
+                });
+
+                keypress.simple_combo("right", function() {
+                    orbitGroup.rotation.y += 0.02;
+                    updateGUI();
+                });
+
+                keypress.simple_combo("up", function() {
+                    camera.position.y += 0.5;
+                    if (camera.position.y > 20) {
+                        camera.position.y = 20;
+                    }
+                    updateGUI();
+                });
+
+                keypress.simple_combo("down", function() {
+                    camera.position.y -= 0.5;
+                    if (camera.position.y < 1) {
+                        camera.position.y = 1;
+                    }
+                    updateGUI();
+                });
+
+
+                function initStats() {
+
+                    var stats = new Stats();
+
+                    stats.setMode(0); // 0: fps, 1: ms
+
+                    // Align top-left
+                    stats.domElement.style.position = 'absolute';
+                    stats.domElement.style.left = '0px';
+                    stats.domElement.style.top = '0px';
+                    $("#Stats-output").append(stats.domElement);
+
+                    return stats;
+                }
+                
+                var keypress = new window.keypress.Listener();
+                
+                keypress.simple_combo("v", function (){
+                    cube.visible = !cube.visible;
+                });
+            });
+
+        </script>
+    </body>
+</html>
